@@ -174,6 +174,54 @@ struct MainView: View {
                             .safeAreaPadding(.leading, 24)
                             .padding(.horizontal, -24)
                             
+                            Text("Fun to Watch")
+                                .font(.system(size: 24, weight: .bold))
+                                .tracking(1.025)
+                                .opacity(0.8)
+                                .padding(.top, 28)
+                            
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 16) {
+                                    ForEach(mainViewModel.popularMovies.reversed()) { movie in
+                                        SmallMoviePosterView(movie: movie, posterSize: .w200, width: width * 0.35, height: 210)
+                                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                                            .overlay {
+                                                RoundedRectangle(cornerRadius: 12)
+                                                    .stroke(lineWidth: 1.5)
+                                            }
+                                    }
+                                }
+                                .padding(2)
+                            }
+                            .padding(.top, 6)
+                            .safeAreaPadding(.trailing, 12)
+                            .safeAreaPadding(.leading, 24)
+                            .padding(.horizontal, -24)
+                            
+                            Text("Great Picks")
+                                .font(.system(size: 24, weight: .bold))
+                                .tracking(1.025)
+                                .opacity(0.8)
+                                .padding(.top, 28)
+                            
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 16) {
+                                    ForEach(mainViewModel.topRatedMovies.reversed()) { movie in
+                                        SmallMoviePosterView(movie: movie, posterSize: .w200, width: width * 0.35, height: 210)
+                                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                                            .overlay {
+                                                RoundedRectangle(cornerRadius: 12)
+                                                    .stroke(lineWidth: 1.5)
+                                            }
+                                    }
+                                }
+                                .padding(2)
+                            }
+                            .padding(.top, 6)
+                            .safeAreaPadding(.trailing, 12)
+                            .safeAreaPadding(.leading, 24)
+                            .padding(.horizontal, -24)
+                            
                         }
                         .padding(.horizontal, 20)
                     }

@@ -105,16 +105,16 @@ struct MovieDetailView: View {
                     VStack(spacing: 16) {
                         ForEach(castDetails.prefix(10), id: \.id) { castMember in
                             CastView(castMember: castMember, width: 52, height: 52)
+                        }
                     }
+                    .padding(.top, 16)
+                    
+                    Spacer()
+                        .frame(height: 100)
                 }
-                .padding(.top, 16)
-                
-                Spacer()
-                    .frame(height: 100)
+                .padding(.leading, 24)
             }
-            .padding(.leading, 24)
         }
-    }
         .onAppear() {
             Task {
                 self.movieDetail = await mainViewModel.getMovieDetails(movie.id)
@@ -132,25 +132,25 @@ struct MovieDetailView: View {
                 .buttonStyle(.plain)
             }
         }
-}
-
-
-// MARK: - Functions
-func timeString(from minutes: Int) -> String {
-    let hours = minutes / 60
-    let remainingMinutes = minutes % 60
-    
-    var result = ""
-    if hours > 0 {
-        result += "\(hours)h"
-    }
-    if remainingMinutes > 0 {
-        if !result.isEmpty { result += " " }
-        result += "\(remainingMinutes)m"
     }
     
-    return result.isEmpty ? "0m" : result
-}
+    
+    // MARK: - Functions
+    func timeString(from minutes: Int) -> String {
+        let hours = minutes / 60
+        let remainingMinutes = minutes % 60
+        
+        var result = ""
+        if hours > 0 {
+            result += "\(hours)h"
+        }
+        if remainingMinutes > 0 {
+            if !result.isEmpty { result += " " }
+            result += "\(remainingMinutes)m"
+        }
+        
+        return result.isEmpty ? "0m" : result
+    }
 }
 
 #Preview {

@@ -28,14 +28,12 @@ struct FavoriteMoviesView: View {
     
     // MARK: - Views
     var body: some View {
-//        NavigationStack {
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVStack(spacing: 16) {
                     ForEach(Array(favoriteMovies.enumerated()), id: \.element.id) { ix, movie in
                         MovieListView(movie: movie, movieGenre: genreService.getGenres(from: movie.genreIDs), removeAction: {
                             movie.isFavorite = false
                             
-//                            appState.removeMovieId(movie.id)
                             try? managedObjectContext.save()
                         })
                     }
@@ -56,15 +54,10 @@ struct FavoriteMoviesView: View {
                 }
             }
             .onAppear() {
-//                if appState.favoriteMovieIDs.isEmpty {
-//                    appState.favoriteMovieIDs.append(contentsOf: favoriteMovies.map { $0.id} )
-//                }
-//                
-//                print("Favorited IDS", appState.favoriteMovieIDs)
+
             }
             .navigationTitle("Favorite Movies")
             .navigationBarTitleDisplayMode(.large)
-//        }
     }
 }
 

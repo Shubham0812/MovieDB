@@ -43,7 +43,13 @@ final class SearchViewModel {
     @MainActor
     func searchMovies() async {
         let result = await networkManager.request(.searchMovies(query: searchText), as: MovieSearchResponse.self)
-        apply(result.map(\.results), transform: { Array($0.filter { $0.posterPath != nil }) }, to: \.searchedMovies)
+        switch result {
+        case .success(let response):
+            self.searchedMovies = Array(response.results.filter { $0.posterPath != nil })
+            
+        case .failure(let error):
+            self.errorMessage = error.localizedDescription
+        }
     }
     
     func favoriteMovie(movieNW: MovieNW) {
@@ -72,6 +78,3 @@ final class SearchViewModel {
         return movies.map { $0.id }
     }
 }
-
-
-extension SearchViewModel: APIUpdatable {}

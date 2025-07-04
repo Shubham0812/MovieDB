@@ -24,10 +24,6 @@ struct TabbedView: View {
                 .tag(0)
                 .tabItem { Label("Home", systemImage: "house.fill") }
             
-//            FavoriteMovies()
-//                .tag(1)
-//                .tabItem { Label("Favorites", systemImage: "heart.fill") }
-            
             NavigationStack {
                 SearchMoviesView()
             }

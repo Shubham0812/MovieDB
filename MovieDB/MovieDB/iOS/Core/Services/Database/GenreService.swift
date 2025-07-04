@@ -5,7 +5,6 @@
 //  Created by Shubham on 04/07/25.
 //
 
-
 import CoreData
 
 class GenreService: ObservableObject {

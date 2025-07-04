@@ -8,121 +8,129 @@
 import SwiftUI
 import CoreData
 
-final class MainViewModel: ObservableObject, APIUpdatable {
+/// ViewModel responsible for fetching, storing and managing movie data from network and Core Data
+final class MainViewModel: ObservableObject {
     
-    // MARK: - Variables
+    // MARK: - Dependencies
     let networkManager: NetworkManager
     
+    // MARK: - Published Properties (UI Binding)
+    @Published var searchedMovies: [MovieNW] = []               // Movies from search
+    @Published var weeklyTopTenMovies: [MovieNW] = []           // Weekly trending top 10 movies
+    @Published var dailyTrendingMovies: [MovieNW] = []          // Daily trending movies
     
-    @Published var searchedMovies: [MovieNW] = []
+    @Published var topRatedMovies: [MovieNW] = []               // Top rated movies from API
+    @Published var popularMovies: [MovieNW] = []                // Popular movies from API
     
-    @Published var weeklyTopTenMovies: [MovieNW] = []
-    @Published var dailyTrendingMovies: [MovieNW] = []
-    
-    @Published var topRatedMovies: [MovieNW] = []
-    @Published var popularMovies: [MovieNW] = []
-    
-    @Published var errorMessage: String?
-    
-    @Published var featuredMovie: MovieNW?
-    
+    @Published var errorMessage: String?                        // To show error to user
+    @Published var featuredMovie: MovieNW?                      // Random featured movie (used in UI)
+
+    // MARK: - Core Data Context
     var modelContext: NSManagedObjectContext?
     var coreDataService: CoreDataService?
     
-    
-    // MARK: - Inits
+    // MARK: - Initializer
     init(networkManager: NetworkManager = .init()) {
         self.networkManager = networkManager
     }
     
-    
-    // MARK: - Functions
+    // MARK: - Load Core Data Context & Fetch Existing Movies
     func loadData(modelContext: NSManagedObjectContext) {
         self.modelContext = modelContext
         self.coreDataService = .init(context: modelContext)
         
-        
         let movies = coreDataService!.fetch(Movie.self)
-        
         print("FETCHED MOVIES", movies)
     }
     
+    // MARK: - Fetch Trending Movies (Daily)
     @MainActor
     func fetchTrendingMovies() async {
         let result = await networkManager.request(.trending(period: TrendingMovie.day.rawValue), as: MovieSearchResponse.self)
-        await MainActor.run {
-            apply(result.map(\.results), to: \.dailyTrendingMovies)
+        switch result {
+        case .success(let response):
+            self.dailyTrendingMovies = response.results
+        case .failure(let error):
+            self.errorMessage = error.localizedDescription
         }
     }
     
+    // MARK: - Fetch Weekly Top 10 Movies
     @MainActor
     func fetchWeeklyTopTenMovies() async {
         let result = await networkManager.request(.trending(period: TrendingMovie.week.rawValue), as: MovieSearchResponse.self)
-        await MainActor.run {
-            apply(result.map(\.results), transform: { Array($0.prefix(10)) }, to: \.weeklyTopTenMovies)
+        switch result {
+        case .success(let response):
+            self.weeklyTopTenMovies = Array(response.results.prefix(10))
+        case .failure(let error):
+            self.errorMessage = error.localizedDescription
         }
     }
     
+    // MARK: - Fetch Top Rated Movies
+    @MainActor
+    func fetchTopRatedMovies(page: Int) async {
+        let result = await networkManager.request(.topRated(page: page), as: TopRatedMoviesResponse.self)
+        switch result {
+        case .success(let success):
+            self.topRatedMovies = success.results
+        case .failure(let error):
+            self.errorMessage = error.localizedDescription
+        }
+        
+        // Randomly select one as featured movie
+        self.featuredMovie = topRatedMovies.randomElement()
+    }
     
+    // MARK: - Fetch Popular Movies
+    @MainActor
+    func fetchPopularMovies(page: Int) async {
+        let result = await networkManager.request(.popular(page: page), as: PopularMoviesResponse.self)
+        switch result {
+        case .success(let success):
+            self.popularMovies = success.results
+        case .failure(let error):
+            self.errorMessage = error.localizedDescription
+        }
+    }
     
+    // MARK: - Get Movie Detail
     @MainActor
     func getMovieDetails(_ movieID: Int64) async -> MovieDetail? {
         let result = await networkManager.request(.movieDetail(id: movieID), as: MovieDetail.self)
-        
         switch result {
         case .success(let detail):
             return detail
-            
         case .failure(let error):
             self.errorMessage = error.localizedDescription
             return nil
         }
     }
     
+    // MARK: - Get Cast Information for a Movie
     @MainActor
     func getCastDetails(_ movieID: Int64) async -> [CastMember] {
         let result = await networkManager.request(.movieCredits(id: movieID), as: MovieCreditsResponse.self)
-        
         switch result {
         case .success(let response):
             return response.cast
-            
         case .failure(let error):
             self.errorMessage = error.localizedDescription
             return []
         }
     }
-    
-    
-    // Top Rated Movies
-    @MainActor
-    func fetchTopRatedMovies(page: Int) async {
-        let result = await networkManager.request(.topRated(page: page), as: TopRatedMoviesResponse.self)
-        await MainActor.run {
-            apply(result.map(\.results), to: \.topRatedMovies)
-            
-            self.featuredMovie = topRatedMovies.randomElement()
-        }
-    }
-    
-    // Popular Movies
-    @MainActor
-    func fetchPopularMovies(page: Int) async {
-        let result = await networkManager.request(.popular(page: page), as: PopularMoviesResponse.self)
-        await MainActor.run {
-            apply(result.map(\.results), to: \.popularMovies)
-        }
-    }
-    
+
+    // MARK: - Save a Movie as Favorite (Core Data)
     func saveMovie(movieNW: MovieNW) {
         guard let modelContext else { return }
         
+        // Create a new Core Data movie instance from network movie
         let movie: Movie = Movie(context: modelContext, category: .topRated, from: movieNW, isFavorite: true)
         modelContext.insert(movie)
-        
         coreDataService?.save()
     }
     
+    // MARK: - Unfavorite a Movie (Set isFavorite to false)
     func unfavoriteMovie(movieID: Int64) {
         guard let movie = coreDataService?.fetch(Movie.self, predicate: NSPredicate(format: "id == %d", movieID)).first else { return }
         
@@ -130,4 +138,3 @@ final class MainViewModel: ObservableObject, APIUpdatable {
         coreDataService?.save()
     }
 }
-

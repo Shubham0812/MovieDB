@@ -100,7 +100,7 @@ struct MovieListView: View {
             
             Spacer()
         }
-        
+        .foregroundStyle(.white)
         .padding(12)
         .background {
             RoundedRectangle(cornerRadius: 12)
