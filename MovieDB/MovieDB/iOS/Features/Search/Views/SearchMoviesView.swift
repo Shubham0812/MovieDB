@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SearchMoviesView: View {
-    
+     
     // MARK: - Variables
     @Environment(\.managedObjectContext) private var managedObjectContext
     @State var searchViewModel: SearchViewModel = .init()
