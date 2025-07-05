@@ -11,7 +11,7 @@ struct SearchMoviesView: View {
      
     // MARK: - Variables
     @Environment(\.managedObjectContext) private var managedObjectContext
-    @State var searchViewModel: SearchViewModel = .init()
+    @StateObject var searchViewModel: SearchViewModel = .init()
     
     @EnvironmentObject var genreService: GenreService
     @EnvironmentObject var mainViewModel: MainViewModel
