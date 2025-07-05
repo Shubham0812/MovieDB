@@ -110,10 +110,39 @@ struct MovieListView: View {
     }
 }
 
+
+struct FavoriteView: View {
+    
+    // MARK: - Variables
+    @Binding var isFavorite: Bool
+    
+    var addAction: () -> () = {}
+    var removeAction: () -> () = {}
+    
+    var body: some View {
+        Image(systemName: isFavorite ? "heart.fill" : "heart")
+            .font(.system(size: 22, weight: .semibold))
+            .foregroundStyle( .red)
+            .opacity(isFavorite ? 1 : 0.7)
+            .padding(.top, 2.25)
+            .symbolEffect(.bounce, options: .speed(1.5), value: isFavorite)
+            .onTapGesture {
+                isFavorite.toggle()
+                if isFavorite {
+                    addAction()
+                } else {
+                    removeAction()
+                }
+            }
+    }
+}
+
+
 #Preview {
 //    @Previewable @State var testMovie: Movie =  PreviewCoreDataProvider.shared.getSampleMovie()
     MovieListView(movie:PreviewCoreDataProvider.shared.getSampleMovie())
         .padding(12)
+        .preferredColorScheme(.dark)
         .fixedSize(horizontal: false, vertical: true)
         .environment(\.managedObjectContext, PreviewCoreDataProvider.shared.container.viewContext)
 }

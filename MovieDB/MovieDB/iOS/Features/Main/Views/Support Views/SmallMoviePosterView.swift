@@ -11,8 +11,7 @@ struct SmallMoviePosterView: View {
     
     // MARK: - Variables
     @EnvironmentObject var mainViewModel: MainViewModel
-    
-    @State var movie: MovieNW
+    @ObservedObject var movie: MovieNW
     
     var posterSize: MoviePosterHelper.ImageSize = .w300
     var width: CGFloat = 200
@@ -27,7 +26,13 @@ struct SmallMoviePosterView: View {
             .contextMenu {
                 Button(action: {
                     movie.isFavorite.toggle()
-                    mainViewModel.saveMovie(movieNW: movie)
+                    
+                    if movie.isFavorite {
+                        mainViewModel.favoriteMovie(movieNW: movie)
+                    } else {
+                        mainViewModel.unfavoriteMovie(movieID: movie.id)
+                    }
+                    
                 }) {
                     Label(movie.isFavorite ? "Remove from Favorites" : "Add to Favorites", systemImage: movie.isFavorite ? "heart" : "heart.fill")
                 }

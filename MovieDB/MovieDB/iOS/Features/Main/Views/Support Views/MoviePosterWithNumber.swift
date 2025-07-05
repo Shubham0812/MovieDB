@@ -10,7 +10,9 @@ import SwiftUI
 struct MoviePosterWithNumber: View {
     
     // MARK: - Variables
-    var movie: MovieNW
+    @EnvironmentObject var mainViewModel: MainViewModel
+
+    @State var movie: MovieNW
     var index: Int
     
     var posterSize: MoviePosterHelper.ImageSize = .w300
@@ -19,14 +21,31 @@ struct MoviePosterWithNumber: View {
     
     // MARK: - Views
     var body: some View {
-        HStack(alignment: .bottom) {
-            Text("\(index)")
-                .font(Londrina.regular.font(size: 180))
-                .offset(y: 36)
-            
-            URLImageView(imageURLString: movie.posterPath, width: width, height: height)
-                .padding(.leading, -20)
+        NavigationLink(value: movie) {
+            HStack(alignment: .bottom) {
+                Text("\(index)")
+                    .font(Londrina.regular.font(size: 180))
+                    .offset(y: 36)
+                
+                URLImageView(imageURLString: movie.posterPath, width: width, height: height)
+                    .padding(.leading, -20)
+            }
+            .contextMenu {
+                Button(action: {
+                    movie.isFavorite.toggle()
+                    
+                    if movie.isFavorite {
+                        mainViewModel.favoriteMovie(movieNW: movie)
+                    } else {
+                        mainViewModel.unfavoriteMovie(movieID: movie.id)
+                    }
+                    
+                }) {
+                    Label(movie.isFavorite ? "Remove from Favorites" : "Add to Favorites", systemImage: movie.isFavorite ? "heart" : "heart.fill")
+                }
+            }
         }
+        .buttonStyle(.plain)
     }
 }
 

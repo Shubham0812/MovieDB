@@ -24,11 +24,15 @@ final class MainViewModel: ObservableObject {
     
     @Published var errorMessage: String?                        // To show error to user
     @Published var featuredMovie: MovieNW?                      // Random featured movie (used in UI)
-
+    
+    @Published var favoriteMovieIDs: [Int64] = []
+    
+    @Published var selectedMovies: [MovieNW] = []
+    
     // MARK: - Core Data Context
     var modelContext: NSManagedObjectContext?
     var coreDataService: CoreDataService?
-    
+     
     // MARK: - Initializer
     init(networkManager: NetworkManager = .init()) {
         self.networkManager = networkManager
@@ -38,12 +42,36 @@ final class MainViewModel: ObservableObject {
     func loadData(modelContext: NSManagedObjectContext) {
         self.modelContext = modelContext
         self.coreDataService = .init(context: modelContext)
-        
-        let movies = coreDataService!.fetch(Movie.self)
-        print("FETCHED MOVIES", movies)
+     
+        loadFavoriteMovies()
+    }
+    
+    func loadFavoriteMovies() {
+        let movies = coreDataService?.fetch(Movie.self) ?? []
+        self.favoriteMovieIDs = movies.map { $0.id }
     }
     
     // MARK: - Fetch Trending Movies (Daily)
+    @MainActor
+    func fetchTopRatedMovies(page: Int) async {
+        let result = await networkManager.request(.topRated(page: page), as: TopRatedMoviesResponse.self)
+        switch result {
+        case .success(let success):
+            var movies = success.results
+            for ix in movies.indices {
+                if favoriteMovieIDs.contains(movies[ix].id) {
+                    movies[ix].isFavorite = true
+                }
+            }
+            self.topRatedMovies = movies
+        case .failure(let error):
+            self.errorMessage = error.localizedDescription
+        }
+        
+        // Randomly select one as featured movie
+        self.featuredMovie = topRatedMovies.randomElement()
+    }
+    
     @MainActor
     func fetchTrendingMovies() async {
         let result = await networkManager.request(.trending(period: TrendingMovie.day.rawValue), as: MovieSearchResponse.self)
@@ -68,19 +96,7 @@ final class MainViewModel: ObservableObject {
     }
     
     // MARK: - Fetch Top Rated Movies
-    @MainActor
-    func fetchTopRatedMovies(page: Int) async {
-        let result = await networkManager.request(.topRated(page: page), as: TopRatedMoviesResponse.self)
-        switch result {
-        case .success(let success):
-            self.topRatedMovies = success.results
-        case .failure(let error):
-            self.errorMessage = error.localizedDescription
-        }
-        
-        // Randomly select one as featured movie
-        self.featuredMovie = topRatedMovies.randomElement()
-    }
+  
     
     // MARK: - Fetch Popular Movies
     @MainActor
@@ -121,12 +137,15 @@ final class MainViewModel: ObservableObject {
     }
 
     // MARK: - Save a Movie as Favorite (Core Data)
-    func saveMovie(movieNW: MovieNW) {
+    func favoriteMovie(movieNW: MovieNW) {
         guard let modelContext else { return }
         
-        // Create a new Core Data movie instance from network movie
-        let movie: Movie = Movie(context: modelContext, category: .topRated, from: movieNW, isFavorite: true)
-        modelContext.insert(movie)
+        if let movie = coreDataService?.fetch(Movie.self, predicate: NSPredicate(format: "id == %d", movieNW.id)).first {
+            movie.isFavorite = true
+        } else {
+            let movie: Movie = Movie(context: modelContext, category: .topRated, from: movieNW, isFavorite: true)
+            modelContext.insert(movie)
+        }
         coreDataService?.save()
     }
     
@@ -136,5 +155,16 @@ final class MainViewModel: ObservableObject {
         
         movie.isFavorite = false
         coreDataService?.save()
+    }
+}
+
+extension MainViewModel {
+    func movies(for category: MovieCategory) -> [MovieNW] {
+        switch category {
+        case .topRated: return topRatedMovies
+        case .popular: return popularMovies
+        case .trendingDaily: return dailyTrendingMovies
+        case .trendingWeekly: return weeklyTopTenMovies
+        }
     }
 }

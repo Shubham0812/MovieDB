@@ -11,7 +11,7 @@ struct MovieDetailView: View {
     
     // MARK: - Variables
     @EnvironmentObject var mainViewModel: MainViewModel
-    @State var movie: MovieNW
+    @ObservedObject var movie: MovieNW
     
     @State var movieDetail: MovieDetail?
     @State var castDetails: [CastMember] = []
@@ -38,7 +38,7 @@ struct MovieDetailView: View {
                                     movie.isFavorite.toggle()
                                     
                                     if movie.isFavorite {
-                                        mainViewModel.saveMovie(movieNW: movie)
+                                        mainViewModel.favoriteMovie(movieNW: movie)
                                     } else {
                                         mainViewModel.unfavoriteMovie(movieID: movie.id)
                                     }

@@ -12,7 +12,19 @@ enum MovieCategory: String {
     case trendingDaily
     case trendingWeekly
     case popular
-    case defaultCategory
+    
+    var title: String {
+        switch self {
+        case .topRated:
+            return "Top-Rated"
+        case .trendingDaily:
+            return "Trending Now"
+        case .trendingWeekly:
+            return "Trending This Week"
+        case .popular:
+            return "Popular Movies"
+        }
+    }
 }
 
 extension Movie {
