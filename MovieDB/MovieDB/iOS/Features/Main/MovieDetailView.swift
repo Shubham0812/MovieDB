@@ -11,7 +11,7 @@ struct MovieDetailView: View {
     
     // MARK: - Variables
     @EnvironmentObject var mainViewModel: MainViewModel
-    @ObservedObject var movie: MovieNW
+    @State var movie: MovieNW
     
     @State var movieDetail: MovieDetail?
     @State var castDetails: [CastMember] = []

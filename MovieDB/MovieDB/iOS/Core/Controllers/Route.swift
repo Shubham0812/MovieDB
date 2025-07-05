@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum Route: Hashable {
+enum Route {
     case favorites
-    case seeAll(category: MovieCategory)
+    case seeAll
 }

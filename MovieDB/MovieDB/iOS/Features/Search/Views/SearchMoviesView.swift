@@ -51,19 +51,8 @@ struct SearchMoviesView: View {
                     .environmentObject(mainViewModel)
             }
             .onAppear() {
-                print("Search on appear")
                 searchViewModel.updateContext(managedObjectContext)
-                
-                guard !searchViewModel.searchedMovies.isEmpty else { return }
-                let favoriteIDs = searchViewModel.fetchFavoriteMovieIDs()
-                
-                for index in searchViewModel.searchedMovies.indices {
-                    let movieID = searchViewModel.searchedMovies[index].id
-                    
-                    print("Search - movie.id: \(movieID), isFavorite: \(favoriteIDs.contains(movieID))")
-                    
-                    searchViewModel.searchedMovies[index].isFavorite = favoriteIDs.contains(movieID)
-                }
+
             }
         }
     }

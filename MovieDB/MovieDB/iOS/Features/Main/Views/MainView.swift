@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 struct MainView: View {
     
     // MARK: - Variables
@@ -53,7 +54,7 @@ struct MainView: View {
                                 
                                 Spacer()
                                 
-                                NavigationLink(value: Route.seeAll(category: .topRated)) {
+                                NavigationLink(value: Route.seeAll) {
                                     Text("See all")
                                         .font(Montserrat.medium.font(size: 16))
                                         .opacity(0.7)
@@ -61,6 +62,7 @@ struct MainView: View {
                                 .simultaneousGesture(
                                     TapGesture()
                                         .onEnded { value in
+                                            self.mainViewModel.selectedTitle = "Top-Rated Movies"
                                             self.mainViewModel.selectedMovies = self.mainViewModel.topRatedMovies
                                         }
                                 )
@@ -101,11 +103,9 @@ struct MainView: View {
                                     .font(.system(size: 24, weight: .bold))
                                     .tracking(1.025)
                                     .opacity(0.8)
-                                    .padding(.top, 28)
-                                
                                 Spacer()
                                 
-                                NavigationLink(value: Route.seeAll(category: .trendingWeekly)) {
+                                NavigationLink(value: Route.seeAll) {
                                     Text("See all")
                                         .font(Montserrat.medium.font(size: 16))
                                         .opacity(0.7)
@@ -113,11 +113,13 @@ struct MainView: View {
                                 .simultaneousGesture(
                                     TapGesture()
                                         .onEnded { value in
+                                            self.mainViewModel.selectedTitle = "Trending This Week"
                                             self.mainViewModel.selectedMovies = self.mainViewModel.weeklyTopTenMovies
                                         }
                                 )
                                 .buttonStyle(.plain)
                             }
+                            .padding(.top, 28)
                             
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 24) {
@@ -146,11 +148,10 @@ struct MainView: View {
                                     .font(.system(size: 24, weight: .bold))
                                     .tracking(1.025)
                                     .opacity(0.8)
-                                    .padding(.top, 28)
                                 
                                 Spacer()
                                 
-                                NavigationLink(value: Route.seeAll(category: .popular)) {
+                                NavigationLink(value: Route.seeAll) {
                                     Text("See all")
                                         .font(Montserrat.medium.font(size: 16))
                                         .opacity(0.7)
@@ -158,11 +159,13 @@ struct MainView: View {
                                 .simultaneousGesture(
                                     TapGesture()
                                         .onEnded { value in
+                                            self.mainViewModel.selectedTitle = "Popular Movies"
                                             self.mainViewModel.selectedMovies = self.mainViewModel.popularMovies
                                         }
                                 )
                                 .buttonStyle(.plain)
                             }
+                            .padding(.top, 28)
                             
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 16) {
@@ -191,12 +194,30 @@ struct MainView: View {
                             .safeAreaPadding(.leading, 24)
                             .padding(.horizontal, -24)
                             
+                            HStack {
+                                Text("Trending Now")
+                                    .font(.system(size: 24, weight: .bold))
+                                    .tracking(1.025)
+                                    .opacity(0.8)
+                                
+                                Spacer()
+                                
+                                NavigationLink(value: Route.seeAll) {
+                                    Text("See all")
+                                        .font(Montserrat.medium.font(size: 16))
+                                        .opacity(0.7)
+                                }
+                                .simultaneousGesture(
+                                    TapGesture()
+                                        .onEnded { value in
+                                            self.mainViewModel.selectedTitle = "Trending Now"
+                                            self.mainViewModel.selectedMovies = self.mainViewModel.dailyTrendingMovies.reversed()
+                                        }
+                                )
+                                .buttonStyle(.plain)
+                            }
+                            .padding(.top, 28)
                             
-                            Text("Trending Now")
-                                .font(.system(size: 24, weight: .bold))
-                                .tracking(1.025)
-                                .opacity(0.8)
-                                .padding(.top, 28)
                             
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 16) {
@@ -216,11 +237,29 @@ struct MainView: View {
                             .safeAreaPadding(.leading, 24)
                             .padding(.horizontal, -24)
                             
-                            Text("Fun to Watch")
-                                .font(.system(size: 24, weight: .bold))
-                                .tracking(1.025)
-                                .opacity(0.8)
-                                .padding(.top, 28)
+                            HStack {
+                                Text("Fun to Watch")
+                                    .font(.system(size: 24, weight: .bold))
+                                    .tracking(1.025)
+                                    .opacity(0.8)
+                                
+                                Spacer()
+                                
+                                NavigationLink(value: Route.seeAll) {
+                                    Text("See all")
+                                        .font(Montserrat.medium.font(size: 16))
+                                        .opacity(0.7)
+                                }
+                                .simultaneousGesture(
+                                    TapGesture()
+                                        .onEnded { value in
+                                            self.mainViewModel.selectedTitle = "Fun to Watch"
+                                            self.mainViewModel.selectedMovies = self.mainViewModel.popularMovies.reversed()
+                                        }
+                                )
+                                .buttonStyle(.plain)
+                            }
+                            .padding(.top, 28)
                             
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 16) {
@@ -240,11 +279,29 @@ struct MainView: View {
                             .safeAreaPadding(.leading, 24)
                             .padding(.horizontal, -24)
                             
-                            Text("Great Picks")
-                                .font(.system(size: 24, weight: .bold))
-                                .tracking(1.025)
-                                .opacity(0.8)
-                                .padding(.top, 28)
+                            HStack {
+                                Text("Great Picks")
+                                    .font(.system(size: 24, weight: .bold))
+                                    .tracking(1.025)
+                                    .opacity(0.8)
+                                
+                                Spacer()
+                                
+                                NavigationLink(value: Route.seeAll) {
+                                    Text("See all")
+                                        .font(Montserrat.medium.font(size: 16))
+                                        .opacity(0.7)
+                                }
+                                .simultaneousGesture(
+                                    TapGesture()
+                                        .onEnded { value in
+                                            self.mainViewModel.selectedTitle = "Great Picks"
+                                            self.mainViewModel.selectedMovies = self.mainViewModel.topRatedMovies.reversed()
+                                        }
+                                )
+                                .buttonStyle(.plain)
+                            }
+                            .padding(.top, 28)
                             
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 16) {
@@ -313,8 +370,8 @@ struct MainView: View {
                     FavoriteMoviesView()
                         .environmentObject(mainViewModel)
                     
-                case Route.seeAll(let category):
-                    MoviesGridView(movies: mainViewModel.movies(for: category), title: category.title)
+                case Route.seeAll:
+                    MoviesGridView()
                         .environmentObject(mainViewModel)
                 }
             }

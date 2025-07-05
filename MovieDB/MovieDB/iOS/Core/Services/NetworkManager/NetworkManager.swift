@@ -39,8 +39,6 @@ struct NetworkManager {
                   200..<300 ~= httpResponse.statusCode else {
                 return .failure(.invalidResponse)
             }
-            
-            print("Data", data, String(data: data, encoding: .utf8))
 
             let decoded = try JSONDecoder().decode(T.self, from: data)
             return .success(decoded)

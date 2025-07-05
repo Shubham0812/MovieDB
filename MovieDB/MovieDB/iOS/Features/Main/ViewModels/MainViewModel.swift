@@ -28,6 +28,7 @@ final class MainViewModel: ObservableObject {
     @Published var favoriteMovieIDs: [Int64] = []
     
     @Published var selectedMovies: [MovieNW] = []
+    @Published var selectedTitle: String = ""
     
     // MARK: - Core Data Context
     var modelContext: NSManagedObjectContext?
@@ -57,13 +58,7 @@ final class MainViewModel: ObservableObject {
         let result = await networkManager.request(.topRated(page: page), as: TopRatedMoviesResponse.self)
         switch result {
         case .success(let success):
-            var movies = success.results
-            for ix in movies.indices {
-                if favoriteMovieIDs.contains(movies[ix].id) {
-                    movies[ix].isFavorite = true
-                }
-            }
-            self.topRatedMovies = movies
+            self.topRatedMovies = success.results
         case .failure(let error):
             self.errorMessage = error.localizedDescription
         }
@@ -155,16 +150,5 @@ final class MainViewModel: ObservableObject {
         
         movie.isFavorite = false
         coreDataService?.save()
-    }
-}
-
-extension MainViewModel {
-    func movies(for category: MovieCategory) -> [MovieNW] {
-        switch category {
-        case .topRated: return topRatedMovies
-        case .popular: return popularMovies
-        case .trendingDaily: return dailyTrendingMovies
-        case .trendingWeekly: return weeklyTopTenMovies
-        }
     }
 }

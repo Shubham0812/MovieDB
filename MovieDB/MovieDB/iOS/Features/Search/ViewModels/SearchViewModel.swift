@@ -7,11 +7,10 @@
 
 import CoreData
 
-@Observable
-final class SearchViewModel {
+final class SearchViewModel: ObservableObject {
     
     // MARK: - Variables
-    var searchText = "" {
+    @Published var searchText = "" {
         didSet {
             Task {
                 await searchMovies()
@@ -39,7 +38,6 @@ final class SearchViewModel {
         self.coreDataService = .init(context: modelContext)
     }
     
-    
     @MainActor
     func searchMovies() async {
         let result = await networkManager.request(.searchMovies(query: searchText), as: MovieSearchResponse.self)
@@ -55,6 +53,9 @@ final class SearchViewModel {
     func favoriteMovie(movieNW: MovieNW) {
         guard let modelContext else { return }
         
+        if let index = searchedMovies.firstIndex(where: { $0.id == movieNW.id }) {
+            searchedMovies[index].isFavorite = true
+        }
         if let movie = coreDataService?.fetch(Movie.self, predicate: NSPredicate(format: "id == %d", movieNW.id)).first {
             movie.isFavorite = true
         } else {

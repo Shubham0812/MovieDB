@@ -10,29 +10,31 @@ import SwiftUI
 struct MoviesGridView: View {
     
     // MARK: - Variables
-    var movies: [MovieNW]
-    var title: String = ""
+    @EnvironmentObject var mainViewModel: MainViewModel
     
     // MARK: - Views
     var body: some View {
         GeometryReader { proxy in
-            VStack(alignment: .leading) {
-                Text(title)
-                    .font(.system(size: 28, weight: .bold))
-                
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 16) {
-                    ForEach(movies) { movie in
-                        MovieTileView(movie: movie, width: proxy.size.width / 3 - 24, height: (proxy.size.width / 3 - 24) * 1.35)
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(alignment: .leading) {
+                    Text(mainViewModel.selectedTitle)
+                        .font(.system(size: 28, weight: .bold))
+                        .padding(.top, 12)
+                    
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 16) {
+                        ForEach(mainViewModel.selectedMovies) { movie in
+                            MovieTileView(movie: movie, width: proxy.size.width / 3 - 24, height: (proxy.size.width / 3 - 24) * 1.35)
+                        }
                     }
+                    .padding(.top, 20)
                 }
-                .padding(.top, 28)
+                .padding(.horizontal, 20)
             }
-            .padding(.horizontal, 20)
         }
     }
 }
 
 #Preview {
-    MoviesGridView(movies: [testMovie])
+    MoviesGridView()
         .environmentObject(MainViewModel())
 }

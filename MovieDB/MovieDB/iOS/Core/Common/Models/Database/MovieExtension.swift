@@ -28,7 +28,7 @@ enum MovieCategory: String {
 }
 
 extension Movie {
-    convenience init(context: NSManagedObjectContext, category: MovieCategory, from movie: MovieNW, isFavorite: Bool = false) {
+    convenience init(context: NSManagedObjectContext, category: MovieCategory, from movie: MovieListData, isFavorite: Bool = false) {
         guard let entity = NSEntityDescription.entity(forEntityName: "Movie", in: context) else {
             fatalError("Couldn’t find entity 'Movie' in context")
         }
@@ -40,19 +40,14 @@ extension Movie {
         self.releaseDate = movie.releaseDate
         self.overview = movie.overview
         self.category = category.rawValue
-        self.genreIDs = movie.genres.map(String.init).joined(separator: ",")
+        self.genreIDs = movie.genreIDs
         self.isFavorite = isFavorite
         
-        self.totalVotes = Int64(movie.totalVotes ?? 0)
         self.voteAverage = movie.voteAverage
         
         self.timestamp = Date().timeIntervalSince1970
-        self.backdropPath = movie.backdropPath
         self.posterPath = movie.posterPath
     }
 }
 
-
-extension Movie: MovieListData {
-
-}
+extension Movie: MovieListData {}

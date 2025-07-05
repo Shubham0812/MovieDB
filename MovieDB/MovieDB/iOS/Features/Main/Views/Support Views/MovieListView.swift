@@ -24,8 +24,100 @@ struct MovieListView: View {
     
     // MARK: - Variables
     @Environment(\.managedObjectContext) private var managedObjectContext
-
+    
     @State var movie: MovieListData
+    
+    var movieGenre: String = ""
+    
+    var addAction: () -> () = {}
+    var removeAction: () -> () = {}
+    
+    // MARK: - Views
+    var body: some View {
+        HStack {
+            URLImageView(imageURLString: movie.posterPath, width: 100, height: 120)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(lineWidth: 1.25)
+                        .foregroundStyle(Color.label)
+                        .opacity(0.4)
+                }
+            
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(movie.title ?? "")
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                        .font(.system(size: 23, weight: .semibold))
+                        .padding(.trailing, 4)
+                    Spacer()
+                }
+                .overlay(alignment: .trailing) {
+                    Image(systemName: movie.isFavorite ? "heart.fill" : "heart")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundStyle( .red)
+                        .opacity(movie.isFavorite ? 1 : 0.7)
+                        .padding(.top, 2.25)
+                        .symbolEffect(.bounce, options: .speed(1.5), value: movie.isFavorite)
+                        .onTapGesture {
+                            movie.isFavorite.toggle()
+                            if movie.isFavorite {
+                                addAction()
+                            } else {
+                                removeAction()
+                            }
+                        }
+                }
+                Text(movieGenre)
+                    .font(Montserrat.medium.font(size: 12))
+                    .opacity(0.6)
+                    .lineLimit(1)
+                
+                Text(movie.overview ?? "")
+                    .font(Montserrat.medium.font(size: 12))
+                    .lineLimit(2)
+                    .padding(.top, 4)
+                
+                Spacer()
+                
+                HStack(spacing: 12) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "calendar")
+                        Text(movie.releaseDate?.components(separatedBy: "-")[0] ?? "")
+                            .font(Montserrat.medium.font(size: 16))
+                    }
+                    
+                    HStack(spacing: 4) {
+                        Image(systemName: "star.fill")
+                            .foregroundStyle(.yellow)
+                        
+                        Text("\(movie.voteAverage.clean(places: 1))")
+                            .font(Montserrat.medium.font(size: 16))
+                    }
+                }
+                .opacity(0.8)
+            }
+            .padding(.leading, 4)
+            
+            Spacer()
+        }
+        .foregroundStyle(.white)
+        .padding(12)
+        .background {
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(lineWidth: 2.25)
+                .opacity(0.15)
+        }
+    }
+}
+
+
+struct MovieListNWView: View {
+    
+    // MARK: - Variables
+    @Environment(\.managedObjectContext) private var managedObjectContext
+    
+    @ObservedObject var movie: MovieNW
     
     var movieGenre: String = ""
     
@@ -107,33 +199,6 @@ struct MovieListView: View {
                 .stroke(lineWidth: 2.25)
                 .opacity(0.15)
         }
-    }
-}
-
-
-struct FavoriteView: View {
-    
-    // MARK: - Variables
-    @Binding var isFavorite: Bool
-    
-    var addAction: () -> () = {}
-    var removeAction: () -> () = {}
-    
-    var body: some View {
-        Image(systemName: isFavorite ? "heart.fill" : "heart")
-            .font(.system(size: 22, weight: .semibold))
-            .foregroundStyle( .red)
-            .opacity(isFavorite ? 1 : 0.7)
-            .padding(.top, 2.25)
-            .symbolEffect(.bounce, options: .speed(1.5), value: isFavorite)
-            .onTapGesture {
-                isFavorite.toggle()
-                if isFavorite {
-                    addAction()
-                } else {
-                    removeAction()
-                }
-            }
     }
 }
 

@@ -31,17 +31,19 @@ struct FavoriteMoviesView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVStack(spacing: 16) {
                     ForEach(Array(favoriteMovies.enumerated()), id: \.element.id) { ix, movie in
-                        MovieListView(movie: movie, movieGenre: genreService.getGenres(from: movie.genreIDs), removeAction: {
-                            movie.isFavorite = false
-                            
-                            try? managedObjectContext.save()
-                        })
+                        NavigationLink(value: movie) {
+                            MovieListView(movie: movie, movieGenre: genreService.getGenres(from: movie.genreIDs), removeAction: {
+                                movie.isFavorite = false
+                                
+                                try? managedObjectContext.save()
+                            })
+                        }
                     }
                 }
                 .padding(2)
                 .safeAreaPadding(.top, 24)
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 18)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Image(systemName: "magnifyingglass")
@@ -49,7 +51,7 @@ struct FavoriteMoviesView: View {
                 }
                 
                 ToolbarItem(placement: .topBarLeading) {
-                    Image(systemName: "chevron.left")
+                    Image(systemName: "chevrkon.left")
                         .font(.system(size: 18, weight: .semibold))
                 }
             }
